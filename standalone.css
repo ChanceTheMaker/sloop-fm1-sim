@@ -1,0 +1,34 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+body.standalone-synth {margin:0;background:#101114!important;min-height:100dvh;padding:48px 18px 24px;color:#eceef1}
+.standalone-synth main {max-width:none;margin:0 auto;padding:0;border:0;box-shadow:none;background:transparent}
+.standalone-synth .masthead,.standalone-synth .site-nav,.standalone-synth .settings-menu,.standalone-synth #back-to-top,.standalone-synth .mode-tip {display:none!important}
+.standalone-synth #tabs,.standalone-synth #trackbar,.standalone-synth .panel,.standalone-synth #hint {display:none!important}
+.standalone-synth #firmware-view {margin:12px auto 0}
+.standalone-synth #firmware-view[data-layout=device] {max-width:1100px}
+.standalone-synth #firmware-view>.native-body {padding-top:28px}
+.standalone-synth .device-credits {max-width:1050px;margin:18px auto 0;text-align:center;color:#aab0bb;font:11px/1.7 system-ui}
+.standalone-synth .device-credits p {margin:0 0 8px}
+.standalone-synth .device-credits a {color:#c5cbd5}
+.utility-drawer {position:relative;margin:0 auto;max-width:1280px;z-index:5}
+.utility-drawer>summary {position:fixed;z-index:6;top:0;left:50%;transform:translateX(-50%);display:grid;place-items:center;width:88px;height:26px;border:1px solid #535966;border-top:0;border-radius:0 0 14px 14px;background:#242830;cursor:pointer;list-style:none;box-shadow:0 3px 12px #0005}
+.utility-drawer>summary::-webkit-details-marker {display:none}
+.utility-drawer>summary span {width:10px;height:10px;border-right:2px solid #cbd2dd;border-bottom:2px solid #cbd2dd;transform:translateY(-3px) rotate(45deg)}
+.utility-drawer[open]>summary span {transform:translateY(3px) rotate(225deg)}
+.utility-content {max-height:60dvh;overflow:auto;padding:18px;margin:0 0 20px;border:1px solid #454b56;border-radius:0 0 16px 16px;background:#191c22;box-shadow:0 12px 30px #0005}
+.utility-content .top {position:static;margin:12px 0 0}
+.utility-content .appearance {display:flex!important;flex-wrap:wrap;position:static!important;gap:16px;width:auto!important;box-shadow:none}
+.utility-content .language-picker {margin:0 0 12px}
+.standalone-synth #audio-mode,.standalone-synth #mock,.standalone-synth #connect {display:none!important}
+.standalone-synth .synth-power {display:grid;place-items:center;width:32px;height:32px;padding:0;border:0;border-radius:50%;background:#14191f;color:#fff;font:22px/1 system-ui;cursor:pointer}
+.standalone-synth .synth-power[aria-pressed=true] {color:#a5ffc0;box-shadow:inset 0 0 0 1px #a5ffc070}
+.standalone-synth .synth-power[hidden] {display:none}
+.synth-start {position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#050506;border-radius:6px;z-index:1;padding:12px;box-sizing:border-box}
+.synth-start[hidden] {display:none}
+.synth-start img {width:70%;max-height:60%;object-fit:contain}
+.synth-start button {padding:10px 20px;border:1px solid #ffac80;border-radius:9px;background:#f06427;color:#160d08;font:700 15px/1.3 system-ui;cursor:pointer}
+.synth-start-message {margin:8px 0 0;color:#b9c0ca;font:12px/1.4 system-ui;text-align:center;max-height:60px;overflow:auto}
+.standalone-synth .analytics-menu-button {margin:8px auto;background:transparent;color:#aab0bb;border:0;padding:4px;font-size:11px;text-decoration:underline}
+.standalone-synth .native-help-button:disabled {opacity:.4;cursor:default}
+.standalone-synth .utility-drawer :focus-visible,.standalone-synth .synth-start :focus-visible {outline:3px solid #a4dfff;outline-offset:3px}
+@media(min-width:1100px) and (min-height:800px){.standalone-synth #firmware-view {margin-top:clamp(12px,8vh,100px)}}
+@media(max-width:780px){body.standalone-synth {padding:34px 8px 18px}.standalone-synth #firmware-view>.native-body {padding-top:0}.utility-content {padding:12px}.standalone-synth .device-credits {font-size:10px}.synth-start {padding:6px}.synth-start img {max-height:48%}.synth-start button {font-size:12px;padding:8px 12px}.synth-start-message {font-size:10px}}

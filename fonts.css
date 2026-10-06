@@ -1,0 +1,72 @@
+/* Google Fonts: locally hosted Studio wordmark subsets; see the accompanying license files in fonts/. */
+@font-face {
+  font-family: 'Racing Sans One';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/racingsansone.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Orbitron';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(fonts/orbitron.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Audiowide';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/audiowide.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Berkshire Swash';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/berkshireswash.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Righteous';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/righteous.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Syncopate';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(fonts/syncopate.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Josefin Sans';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(fonts/josefinsans.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Sora';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url(fonts/sora.ttf?v=studio1) format('truetype');
+}
+
+@font-face {
+  font-family: 'Bungee';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url(fonts/bungee.ttf?v=studio1) format('truetype');
+}

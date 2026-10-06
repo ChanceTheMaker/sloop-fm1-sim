@@ -1,0 +1,110 @@
+/* SPDX-License-Identifier: GPL-3.0-only */
+/* SLOOP integration of the Felucca Salt chassis. Device layout stays authoritative. */
+body { margin:0; }
+/* Native firmware palette: neutral black surfaces and four persistent track colors. */
+:root[data-skin=sloop] {
+ --bg:#0c0d0f; --fg:#f2f2f2; --dim:#a5a5ad; --line:#39393f;
+ --desk:#060708; --chassis:#18191d; --chassis-dark:#090a0c; --panel:#17181c;
+ --accent:#ff873f; --ink:#160a02; --lcd:#f2f2f2; --lcd-bg:#050608;
+ --button:#303138; --edge:#202126; --shell-text:#f2f2f2; --badge-fg:#f2f2f2;
+ --faceplate:linear-gradient(115deg,#23242a,#090a0d); --wordmark:'Orbitron'; --wordmark-weight:700;
+ --knob-top:#62666a; --knob-bottom:#181a1d; --piano-active:#287cff;
+}
+:root[data-skin=sloop][data-mode=light] {
+ --bg:#f4f4f2; --fg:#151518; --dim:#52525a; --line:#b8b8bf; --panel:#e4e4e6;
+ --desk:#d1d1d5; --chassis:#dadadd; --chassis-dark:#bcbcc2; --button:#d4d4d8;
+ --accent:#a53b00; --ink:#fff; --lcd:#151518; --lcd-bg:#fff; --badge-fg:#151518;
+ --faceplate:linear-gradient(115deg,#f6f6f8,#d3d3d9);
+}
+[data-skin=sloop] .masthead { border-bottom:4px solid; border-image:linear-gradient(90deg,#287cff 0 25%,#1ecc70 25% 50%,#ffc618 50% 75%,#ff621a 75%) 1; }
+[data-skin=sloop] #trackbtns button:nth-child(1) { --track:#287cff; }
+[data-skin=sloop] #trackbtns button:nth-child(2) { --track:#1ecc70; }
+[data-skin=sloop] #trackbtns button:nth-child(3) { --track:#ffc618; }
+[data-skin=sloop] #trackbtns button:nth-child(4) { --track:#ff621a; }
+[data-skin=sloop] #trackbtns button { border-bottom:3px solid var(--track); }
+[data-skin=sloop] #trackbtns button[aria-pressed=true] { background:var(--track); color:#050505; }
+[data-skin=sloop] .group { border-top:3px solid var(--line); }
+[data-skin=sloop] .group:nth-child(4n+1) { border-top-color:#287cff; }
+[data-skin=sloop] .group:nth-child(4n+2) { border-top-color:#1ecc70; }
+[data-skin=sloop] .group:nth-child(4n+3) { border-top-color:#ffc618; }
+[data-skin=sloop] .group:nth-child(4n) { border-top-color:#ff621a; }
+.groups { align-items:start; }
+.group .studio-widget { grid-column:1 / -1; }
+.sloop-blank { display:none; grid-column:span var(--spare-columns); height:86px; align-self:center; pointer-events:none; }
+[data-controls=knobs] .sloop-blank { display:grid; }
+.back-to-top { bottom:calc(var(--keyboard-height,0px) + 16px); right:24px; }
+.salt-mark { display:block; background:currentColor; mask:url("salt-shaker.png") center / contain no-repeat; transform:scaleX(-1); }
+.brand-home .salt-mark { flex:0 0 1.15em; width:1.15em; height:1.15em; }
+.brand-home .sloop-logo { display:block; width:195.79px; height:auto; border-radius:5px; }
+.brand-home .salt-lettering { display:block; width:90px; height:82px; flex:0 0 90px; }
+.brand-home:has(.sloop-logo) .salt-mark { flex-basis:.8em; width:.8em; height:.8em; }
+@media(max-width:780px) { .brand-home .sloop-logo { width:146.84px; } .brand-home .salt-lettering { width:67.5px; height:61.5px; flex-basis:67.5px; } }
+@media(max-width:420px) { .brand-home .sloop-logo { width:130.53px; } .brand-home .salt-lettering { width:60px; height:54.7px; flex-basis:60px; } }
+.brand-home { color:inherit; text-decoration:none; }
+.editor-page .brand-home { display:flex;align-items:center;gap:2px; }
+.editor-page .site-nav { display:flex;gap:16px;margin:10px 0; }
+.audio-mode { display:inline-flex;gap:0;padding:3px;border:1px solid var(--line);border-radius:999px;background:var(--lcd-bg); }
+.audio-mode button { min-width:76px;border:0;border-radius:999px;background:transparent;box-shadow:none;color:var(--dim);padding:7px 14px; }
+.audio-mode button[aria-pressed=true] { background:var(--accent);color:var(--ink);box-shadow:0 1px 4px #0005; }
+.audio-mode button:focus-visible {outline:2px solid var(--fg);outline-offset:2px}
+.mode-tip {position:fixed;z-index:1000;box-sizing:border-box;padding:15px 36px 15px 18px;border:1px solid var(--accent);border-radius:12px;background:var(--panel);color:var(--fg);font:14px/1.5 var(--ui-font);box-shadow:0 8px 28px #0005;}
+.mode-tip p {margin:0;white-space:pre-line}
+.mode-tip::before {content:'';position:absolute;left:-7px;top:calc(50% - 6px);width:12px;height:12px;background:var(--panel);border-left:1px solid var(--accent);border-bottom:1px solid var(--accent);transform:rotate(45deg)}
+.mode-tip.below::before {left:calc(var(--tip-arrow-x) - 6px);top:-7px;transform:rotate(135deg)}
+.mode-tip button {position:absolute;right:5px;top:5px;min-width:28px;min-height:28px;padding:0;background:transparent;color:var(--fg);border:0;box-shadow:none;font-size:22px}
+.browser-audio { grid-column:1 / -1; min-width:0; padding:12px; border:1px solid var(--line); border-radius:8px; background:var(--panel); }
+.audio-controls { display:flex; align-items:center; flex-wrap:wrap; gap:8px 12px; }
+.audio-controls label { display:flex; align-items:center; flex-wrap:wrap; gap:8px; }
+.audio-controls input[type=range] { width:120px; max-width:100%; }
+#audio-status { font:12px/1.5 var(--ui-font); color:var(--dim); }
+#audio-scope { display:block; width:100%; height:70px; color:var(--accent); background:var(--bg); border-radius:4px; }
+.brand-links { flex-direction:row; flex-wrap:wrap; }
+.brand-row { gap:20px; }
+.editor-page .top { position:static; }
+.group .card-tools { grid-column:1 / -1; }
+.groups .group { min-width:0; }
+.groups .group[data-controls=knobs] { grid-template-rows:auto; align-content:start; }
+.groups .group[data-controls=knobs] > h3 { margin:12px 0 3px; }
+.groups .group[data-controls=knobs] .row { min-height:105px; }
+.groups .group[data-controls=sliders] .row { min-height:40px; }
+.editor-page main { margin-top:22px; margin-bottom:24px; }
+.editor-page footer { overflow-wrap:anywhere; }
+.brand-links a { white-space:nowrap; }
+@media(max-width:780px) { .brand-row { flex-wrap:wrap; } .brand-links { gap:12px; } }
+@media(max-width:480px) {
+  .editor-page main { padding-left:12px; padding-right:12px; }
+  .top { grid-template-columns:minmax(0,1fr); }
+  .browser { grid-template-columns:minmax(0,1fr); }
+  .browser > div { flex-wrap:wrap; }
+  .tabs button { min-width:max-content; }
+  .panel { padding:8px 0; }
+}
+
+  .play-keyboard { margin-top: 24px; border-top: 1px solid var(--fg); padding-top: 12px; }
+  .play-controls { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; margin: 8px 0; }
+  .play-controls label { display: inline-flex; align-items: center; gap: 6px; }
+  .play-controls input[type="range"] { width: 90px; }
+  .piano-scroll { overflow-x: auto; padding: 4px 0; }
+  .piano { position: relative; height: 132px; min-width: 720px; touch-action: none; user-select: none; }
+  .piano button { position: absolute; top: 0; height: 128px; width: calc(100% / 16); padding: 0 0 9px;
+    display: flex; flex-direction: column; justify-content: end; align-items: center; gap: 3px;
+    border: 1px solid var(--piano-black); border-radius: 0 0 4px 4px; background: var(--piano-white); color: var(--piano-black); touch-action: none; }
+  .piano button.black { z-index: 1; width: calc(60% / 16); height: 82px; background: var(--piano-black); color: var(--piano-white); }
+  .piano button[aria-pressed="true"] { background: var(--piano-active); color: var(--piano-white); box-shadow: inset 0 -5px var(--piano-black); }
+  .piano button:focus-visible { outline: 3px dashed var(--piano-active); outline-offset: 2px; }
+  .piano button:disabled { opacity: .55; cursor: default; }
+  .piano small { font-size: 10px; }
+
+.editor-page .piano { width:100%; min-width:0; }
+.editor-page .piano button { width:calc(100% / var(--white-keys,16)); }
+.editor-page .piano button.black { width:calc(60% / var(--white-keys,16)); }
+.editor-page .play-keyboard { margin:0; }
+.play-keyboard label { white-space:nowrap; }
+@media(max-width:600px) {
+ .editor-page .piano { height:94px; }
+ .editor-page .piano button { height:90px; font-size:8px; }
+ .editor-page .piano button.black { height:58px; }
+ .editor-page .play-controls { flex-wrap:wrap; gap:4px 8px; }
+ .editor-page .play-controls label { font-size:10px; }
+ .editor-page .play-controls input[type=range] { width:55px; }
+}
