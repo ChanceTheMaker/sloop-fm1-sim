@@ -4,7 +4,7 @@
 (() => {
   'use strict';
   const id = 'G-JVF09MZEGD', key = 'sloop.web.analyticsConsent';
-  const production = location.hostname === 'chancethemaker.github.io' && location.pathname.startsWith('/fm1-simulator/');
+  const production = location.hostname === 'chancethemaker.github.io' && location.pathname.startsWith('/sloop-fm1-sim/');
   const allowed = new Set(['install_attempt', 'install_write_started', 'install_success', 'install_failed', 'install_resume_complete', 'browser_audio_started', 'download_click', 'theme_changed']);
   const themes = new Set(['sloop','stage','matrix','dx','modeld','chocolate','vapor','midnight','space','bauhaus','ocean','arcade','hicon']);
   const theme = () => themes.has(document.documentElement.dataset?.skin) ? document.documentElement.dataset.skin : 'sloop';
@@ -23,7 +23,7 @@
     loaded = true;
     tag('js', new Date());
     tag('config', id, {
-      cookie_prefix: 'sloop', cookie_path: '/fm1-simulator/', theme: theme(), allow_google_signals: false, allow_ad_personalization_signals: false,
+      cookie_prefix: 'sloop', cookie_path: '/sloop-fm1-sim/', theme: theme(), allow_google_signals: false, allow_ad_personalization_signals: false,
       page_location: location.origin + location.pathname,
       page_referrer: (() => { try { return new URL(document.referrer).origin; } catch (_) { return ''; } })()
     });

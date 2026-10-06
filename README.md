@@ -1,6 +1,6 @@
 # FM-1 Simulator
 
-[Play FM-1 Simulator](https://chancethemaker.github.io/fm1-simulator/)
+[Play FM-1 Simulator](https://chancethemaker.github.io/sloop-fm1-sim/)
 
 A self-contained Sloop FM-1 browser synthesizer by Chance Roth (ChanceTheMaker).
 Click **Start synth**, then play the device keys or use the displayed QWERTY keys.
