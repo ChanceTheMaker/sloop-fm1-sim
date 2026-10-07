@@ -2414,6 +2414,19 @@ const isDrum = () => !!dev && !!dev.dump && dev.dump.engine >= dev.info.nengines
 const drumGrid = () => isDrum() && !!dev.info.proto && dev.info.proto >= 5;
 
 /* -------------------------------------------------------------- MIDI --- */
+async function prepareBrowserSynth(){
+  if (!browserSynth) {
+    const {BrowserSynth} = await import('./audio/browser.js');
+    browserSynth = new BrowserSynth();
+    browserSynth.onNative=nativeListener;
+    browserSynth.onStorage = ok => window.SloopI18n.text($('audio-status'), ok ? 'audio.saved' : 'audio.storageFailed');
+    browserSynth.onTransport = state => {
+      $('audio-play').setAttribute('aria-pressed', String(state.playing));
+      $('audio-position').textContent = state.playing ? state.positions.map((n,k)=>`${k+1}:${String(n+1).padStart(2,'0')}`).join(' · ') : '';
+    };
+    browserSynth.onError = error => { disconnect(); browserSynth.close().catch(console.error); sayK('error',error.message); };
+  }
+}
 async function connect() {
   wantConnected = true;
   if (!browserMode && !MOCK && !navigator.requestMIDIAccess) { sayK("nomidi"); return; }
@@ -2422,17 +2435,7 @@ async function connect() {
   try {
     if (!access) {
       if (browserMode) {
-        if (!browserSynth) {
-          const {BrowserSynth} = await import('./audio/browser.js');
-          browserSynth = new BrowserSynth();
-          browserSynth.onNative=nativeListener;
-          browserSynth.onStorage = ok => window.SloopI18n.text($('audio-status'), ok ? 'audio.saved' : 'audio.storageFailed');
-          browserSynth.onTransport = state => {
-            $('audio-play').setAttribute('aria-pressed', String(state.playing));
-            $('audio-position').textContent = state.playing ? state.positions.map((n,k)=>`${k+1}:${String(n+1).padStart(2,'0')}`).join(' · ') : '';
-          };
-          browserSynth.onError = error => { disconnect(); browserSynth.close().catch(console.error); sayK('error',error.message); };
-        }
+        await prepareBrowserSynth();
         await browserSynth.start();
         window.SloopAnalytics?.track('browser_audio_started');
         mock = await browserSynth.device(makeMockDevice); access = mock.access;
@@ -4721,8 +4724,10 @@ if (!MOCK && !navigator.requestMIDIAccess) sayK("nomidi");
 if (QS.get('browser') === '1') chooseAudioMode(true);
 if(document.body.classList.contains('standalone-synth')){
  import('./standalone.js').then(async({mountStandalone})=>{
+  await prepareBrowserSynth();await chooseAudioMode(true);
   await ensureFirmwareView();firmwareView.show(true,{preview:true});
-  mountStandalone({start:async()=>{await switchSource('firmware');if(!dev||!browserSynth?.node)throw new Error($('status').textContent||'Audio could not start. Try again.');},
+  browserSynth.prepare().catch(()=>{});
+  mountStandalone({progress:callback=>{browserSynth.onStartup=callback;},start:async()=>{await browserSynth.start();await switchSource('firmware');if(!dev||!browserSynth?.node)throw new Error($('status').textContent||'Audio could not start. Try again.');},
    pause:async()=>{window.SloopPlay.release();externalMIDI?.release();await browserSynth?.stop();},
    resume:async()=>{await browserSynth.start();await setEditorView(true);},isRunning:()=>browserSynth?.context?.state==='running',release:()=>window.SloopPlay.release()});
  }).catch(error=>{$('firmware-view').hidden=false;$('firmware-view').textContent='Unable to load the simulator. Please reload. '+error.message;});

@@ -14,19 +14,43 @@ export function catalogFrom(module) {
    engines:Array.from({length:meta.engine_count()},(_,e)=>({name:text(meta.engine_name(e)),edit:Array.from({length:8},(_,i)=>descriptor(e,0,50+i)),
      presets:Array.from({length:meta.preset_count(e)},(_,p)=>({name:text(meta.preset_name(e,p)),values:Array.from({length:meta.param_count()},(_,i)=>meta.preset_value(e,p,i))}))}))};
 }
+export function startupDeadline(promise,label,ms=12000){
+ let timer;return Promise.race([promise,new Promise((_,reject)=>{timer=setTimeout(()=>reject(new Error(label+' timed out. Tap Try again.')),ms);})]).finally(()=>clearTimeout(timer));
+}
 export class BrowserSynth {
- async start() {
-   if(this.context){await this.context.resume();return;}
+ prepare(){
+   if(!this.prepared){
+     const controller=new AbortController();
+     this.prepared=startupDeadline((async()=>{
+       const response=await fetch(new URL('engine.wasm',import.meta.url),{signal:controller.signal});
+       if(!response.ok)throw new Error(window.SloopI18n.t('audio.loadFailed'));
+       return WebAssembly.compile(await response.arrayBuffer());
+     })(),'Loading the synth engine',20000).catch(error=>{controller.abort();this.prepared=null;throw error;});
+   }
+   return this.prepared;
+ }
+ start(){
+   if(this.starting)return this.starting;
+   const attempt=this.initialize();this.starting=attempt;
+   const clear=()=>{if(this.starting===attempt)this.starting=null;};attempt.then(clear,clear);return attempt;
+ }
+ async initialize() {
+   if(this.context&&this.node){
+     this.onStartup?.('Enabling audio');
+     await startupDeadline(this.context.resume(),'Audio activation',8000);return;
+   }
    const Context=window.AudioContext||window.webkitAudioContext;
    if(!Context)throw new Error(window.SloopI18n.t('audio.unavailable'));
    const context=new Context({latencyHint:'interactive'});this.context=context;
    try {
-     await context.resume();
+     // Called synchronously from Start synth, before any network or module await.
+     this.onStartup?.('Enabling audio');
+     await startupDeadline(context.resume(),'Audio activation',8000);
      if(!context.audioWorklet)throw new Error(window.SloopI18n.t('audio.unavailable'));
-     const response=await fetch(new URL('engine.wasm',import.meta.url));
-     if(!response.ok)throw new Error(window.SloopI18n.t('audio.loadFailed'));
-     const module=await WebAssembly.compile(await response.arrayBuffer());this.catalog=catalogFrom(module);
-     await context.audioWorklet.addModule(new URL('worklet.js',import.meta.url));
+     this.onStartup?.('Loading synth engine');
+     const module=await this.prepare();this.catalog=catalogFrom(module);
+     this.onStartup?.('Starting audio engine');
+     await startupDeadline(context.audioWorklet.addModule(new URL('worklet.js',import.meta.url)),'Starting the audio engine');
      this.node=new AudioWorkletNode(context,'sloop-dsp',{numberOfInputs:0,numberOfOutputs:1,outputChannelCount:[2],processorOptions:{module}});
      this.gain=context.createGain();this.gain.gain.value=0.35;
      this.analyser=context.createAnalyser();this.analyser.fftSize=2048;
@@ -41,7 +65,7 @@ export class BrowserSynth {
        }
      };
      this.node.onprocessorerror=()=>{this.gain.gain.value=0;this.onError?.(new Error(window.SloopI18n.t('audio.failed')));};
-   }catch(error){await context.close();this.context=null;throw error;}
+   }catch(error){context.close().catch(()=>{});this.context=null;this.node=null;this.signature=null;throw error;}
  }
  async device(factory) {
    if(this.virtual)return this.virtual;
@@ -56,7 +80,8 @@ export class BrowserSynth {
    // Start with empty patterns and banks; the silent demo is not a new song.
    for(const t of state.tracks){t.step.forEach(s=>Object.assign(s,{n:0,notes:[0,0,0,0],time:2,flags:0,vel:0,lvl:0,rat:0}));t.dstep?.forEach(s=>{s.on=0;s.lvl.fill(0);s.rat.fill(0);});}
    state.slots.fill(null);state.bank.fill(null);state.rec=0;
-   try{const saved=await session.load();if(saved)Object.assign(state,saved);}catch{this.onStorage?.(false);}
+   this.onStartup?.('Restoring saved session');
+   try{const saved=await startupDeadline(session.load(),'Restoring the saved session',8000);if(saved)Object.assign(state,saved);}catch(error){this.virtual=null;this.onStorage?.(false);throw error;}
    this.sync(state);this.samples(state);return this.virtual;
  }
  sync(state) {
@@ -86,7 +111,7 @@ export class BrowserSynth {
  panic(){this.node?.port.postMessage({type:'panic'});}
  volume(value){this.gain?.gain.setTargetAtTime(Math.max(0,Math.min(1,value)),this.context.currentTime,0.015);}
  scheduleSave(){clearTimeout(this.saveTimer);this.saveTimer=setTimeout(()=>this.save(),300);}
-  async save(){if(!this.virtual)return;clearTimeout(this.saveTimer);try{await session.save(session.snapshot({...this.virtual.state,...this.nativeProject}));this.onStorage?.(true);}catch{this.onStorage?.(false);}}
+  async save(){if(!this.virtual)return;clearTimeout(this.saveTimer);try{await startupDeadline(session.save(session.snapshot({...this.virtual.state,...this.nativeProject})),'Saving the session',8000);this.onStorage?.(true);}catch{this.onStorage?.(false);}}
   async export(){
     if(this.firmwareChanging)await this.firmwareChanging;
     if(this.firmwareActive){

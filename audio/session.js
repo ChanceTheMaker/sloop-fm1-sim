@@ -31,11 +31,18 @@ export function validate(data) {
 }
 let db;
 function open() {
- return db||(db=new Promise((resolve,reject)=>{
+ if(db)return db;
+ db=new Promise((resolve,reject)=>{
+   let settled=false;
    const request=indexedDB.open('sloop-browser-workspace',1);
+   const fail=error=>{if(settled)return;settled=true;clearTimeout(timer);reject(error);};
+   const timer=setTimeout(()=>fail(new Error('Saved session storage did not respond. Tap Try again.')),7000);
    request.onupgradeneeded=()=>request.result.createObjectStore('sessions');
-   request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);
- }));
+   request.onsuccess=()=>{if(settled){request.result.close();return;}settled=true;clearTimeout(timer);resolve(request.result);};
+   request.onerror=()=>fail(request.error);
+   request.onblocked=()=>fail(new Error('Saved session storage is blocked. Close other simulator tabs, then try again.'));
+ }).catch(error=>{db=null;throw error;});
+ return db;
 }
 export async function save(data) {
  const database=await open();
@@ -43,5 +50,5 @@ export async function save(data) {
 }
 export async function load() {
  const database=await open();
- return new Promise((resolve,reject)=>{const r=database.transaction('sessions').objectStore('sessions').get('current');r.onsuccess=()=>resolve(r.result?validate(r.result):null);r.onerror=()=>reject(r.error);});
+ return new Promise((resolve,reject)=>{const r=database.transaction('sessions').objectStore('sessions').get('current');r.onsuccess=()=>{try{resolve(r.result?validate(r.result):null);}catch(error){reject(error);}};r.onerror=()=>reject(r.error);});
 }

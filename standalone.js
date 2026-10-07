@@ -12,6 +12,7 @@ export function mountStandalone(api){
  const playable=()=>[...host.querySelectorAll('.native-navigation,.native-controls'),document.querySelector('.play-keyboard')];
  const lock=on=>playable().forEach(e=>{if(e)e.inert=on;});lock(true);
  let started=false,pending=false;
+ api.progress?.(label=>{message.textContent=label+'…';});
  function reflect(){const running=started&&api.isRunning();power.title=running?'Pause audio':'Resume audio';power.setAttribute('aria-label',power.title);power.setAttribute('aria-pressed',String(running));}
  async function activate(){
   if(pending)return;pending=true;start.disabled=true;power.disabled=true;message.textContent='Starting synth…';
