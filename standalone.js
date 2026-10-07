@@ -3,6 +3,30 @@
 export function mountStandalone(api){
  const host=document.getElementById('firmware-view'),drawer=document.getElementById('utility-drawer');
  const frame=host.querySelector('.native-screen-frame'),toolbar=host.querySelector('.native-toolbar');
+ // Scale the responsive Device layout as one piece, preserving its proportions.
+ // Compensate its flow height so credits follow the visible chassis.
+ let fitFrame=0;
+ function fitDevice(){
+  fitFrame=0;
+  if(window.visualViewport && Math.abs(window.visualViewport.scale-1)>.01)return; // Preserve pinch zoom.
+  const enabled=host.dataset.layout==='device'&&!drawer.open;
+  const height=host.offsetHeight,top=host.getBoundingClientRect().top+window.scrollY;
+  const viewport=window.visualViewport?.height||window.innerHeight;
+  const bottom=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
+  // Keep tiny screens playable: allow scrolling beyond a 28% reduction.
+  const scale=enabled&&height?Math.max(.72,Math.min(1,(viewport-top-bottom)/height)):1;
+  host.style.transform=scale<1?`scale(${scale})`:'';
+  host.style.transformOrigin='top center';
+  host.style.marginBottom=scale<1?`${height*(scale-1)}px`:'';
+  host.dataset.fitScale=scale.toFixed(3);
+ }
+ function scheduleFit(){if(!fitFrame)fitFrame=requestAnimationFrame(fitDevice);}
+ new ResizeObserver(scheduleFit).observe(host);
+ new MutationObserver(scheduleFit).observe(host,{attributes:true,attributeFilter:['data-layout','hidden']});
+ window.addEventListener('resize',scheduleFit);
+ window.visualViewport?.addEventListener('resize',scheduleFit);
+ document.fonts.ready.then(scheduleFit);
+ scheduleFit();
  const overlay=document.createElement('div');overlay.className='synth-start';
  const logo=document.createElement('img');logo.src='sloop-boot.svg';logo.alt='Sloop FM-1 Simulator';
  const start=document.createElement('button');start.type='button';start.id='synth-start';start.textContent='Start synth';
