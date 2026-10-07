@@ -59,4 +59,10 @@ body.fm1-device-layout #firmware-view>.play-keyboard {margin-top:6px}
  .standalone-synth .native-encoders {margin-bottom:12px}
  .standalone-synth .native-buttons {gap:4px;padding:6px;max-width:290px}
  .standalone-synth .device-credits {margin-top:12px;line-height:1.45}
+ /* Small Device-only trim; keep keys, screen and touch targets at their existing sizes. */
+ body.standalone-synth.fm1-device-layout {padding-top:30px}
+ body.fm1-device-layout #firmware-view {margin-top:2px;padding-bottom:8px}
+ body.fm1-device-layout .native-body {gap:8px 10px}
+ body.fm1-device-layout .native-encoders {margin-bottom:8px}
+ body.fm1-device-layout #firmware-view>.play-keyboard {margin-top:4px}
 }
