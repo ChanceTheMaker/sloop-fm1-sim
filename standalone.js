@@ -13,8 +13,9 @@ export function mountStandalone(api){
   const height=host.offsetHeight,top=host.getBoundingClientRect().top+window.scrollY;
   const viewport=window.visualViewport?.height||window.innerHeight;
   const bottom=parseFloat(getComputedStyle(document.body).paddingBottom)||0;
-  // Keep tiny screens playable: allow scrolling beyond a 28% reduction.
-  const scale=enabled&&height?Math.max(.72,Math.min(1,(viewport-top-bottom)/height)):1;
+  // Landscape needs more reduction to accommodate browser chrome and the keyboard.
+  const landscape=matchMedia('(orientation:landscape) and (min-width:560px) and (max-height:500px)').matches;
+  const scale=enabled&&height?Math.max(landscape?.45:.72,Math.min(1,(viewport-top-bottom)/height)):1;
   host.style.transform=scale<1?`scale(${scale})`:'';
   host.style.transformOrigin='top center';
   host.style.marginBottom=scale<1?`${height*(scale-1)}px`:'';
