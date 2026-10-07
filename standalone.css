@@ -1,6 +1,11 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 body.standalone-synth {margin:0;background:#101114!important;min-height:100dvh;padding:48px 18px 24px;color:#eceef1}
 .standalone-synth main {max-width:none;margin:0 auto;padding:0;border:0;box-shadow:none;background:transparent}
+.standalone-synth main::before,.standalone-synth main::after,.standalone-synth .play-keyboard::before,.standalone-synth .play-keyboard::after {display:none!important}
+.standalone-synth .piano-scroll {padding-top:12px;padding-bottom:12px}
+body.fm1-device-layout #firmware-view .play-controls label:has(#play-typing) {color:var(--fm1-ink);text-shadow:none;font-weight:600}
+body.fm1-device-layout[data-fm1-finish=orange] #firmware-view .play-controls label:has(#play-typing) {color:#351509}
+body.fm1-device-layout #firmware-view .play-controls label:has(#play-typing) span {color:inherit}
 .standalone-synth .masthead,.standalone-synth .site-nav,.standalone-synth .settings-menu,.standalone-synth #back-to-top,.standalone-synth .mode-tip {display:none!important}
 .standalone-synth #tabs,.standalone-synth #trackbar,.standalone-synth .panel,.standalone-synth #hint {display:none!important}
 .standalone-synth #firmware-view {margin:12px auto 0}
