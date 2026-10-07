@@ -1,4 +1,8 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
+/* Safari must not select labels or show callouts while playing/dragging. */
+#firmware-view,.play-keyboard,.play-keyboard * { -webkit-user-select:none;user-select:none;-webkit-touch-callout:none }
+#firmware-view input,#firmware-view textarea,.play-keyboard input:not([type=range]):not([type=checkbox]),.play-keyboard textarea { -webkit-user-select:text;user-select:text }
+#firmware-view img { -webkit-user-drag:none }
 body[data-editor-view=firmware] #tabs,body[data-editor-view=firmware] #trackbar,
 body[data-editor-view=firmware] .panel,body[data-editor-view=firmware] #hint {display:none!important}
 #firmware-view {position:relative;max-width:1100px;margin:8px auto;padding:12px;background:#101214;color:#eee;border:1px solid #45494e;border-radius:12px;font:13px/1.4 monospace}
