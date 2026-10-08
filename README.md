@@ -14,6 +14,6 @@ is not affiliated with M-VAVE. Playback may differ from physical hardware.
 
 This repository contains the published static build, its [complete source](source.zip),
 [license](LICENSE), and exact source revision in [release metadata](release.json).
-Source development and review: https://github.com/ChanceTheMaker/sloop_salt/pull/10
+Source development and review: https://github.com/ChanceTheMaker/sloop_salt/tree/bb30fb1c8b3336feded71358bff7eab3c223e43b
 
 The existing Sloop site remains at https://chancethemaker.github.io/sloop_salt/.

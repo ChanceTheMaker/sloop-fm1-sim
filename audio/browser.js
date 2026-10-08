@@ -10,8 +10,8 @@ export function catalogFrom(module) {
    const names=fmt===8?Array.from({length:max-min+1},(_,v)=>text(meta.descriptor_text(e,scope,i,v+min))):null;
    return {label,fmt,min,max,def,names,unit};
  };
- return {common:Array.from({length:50},(_,i)=>descriptor(0,0,i)),globals:Array.from({length:meta.global_count()},(_,i)=>descriptor(0,1,i)),
-   engines:Array.from({length:meta.engine_count()},(_,e)=>({name:text(meta.engine_name(e)),edit:Array.from({length:8},(_,i)=>descriptor(e,0,50+i)),
+ return {common:Array.from({length:meta.param_count()-8},(_,i)=>descriptor(0,0,i)),globals:Array.from({length:meta.global_count()},(_,i)=>descriptor(0,1,i)),
+   engines:Array.from({length:meta.engine_count()},(_,e)=>({name:text(meta.engine_name(e)),edit:Array.from({length:8},(_,i)=>descriptor(e,0,meta.param_count()-8+i)),
      presets:Array.from({length:meta.preset_count(e)},(_,p)=>({name:text(meta.preset_name(e,p)),values:Array.from({length:meta.param_count()},(_,i)=>meta.preset_value(e,p,i))}))}))};
 }
 export function startupDeadline(promise,label,ms=12000){
@@ -73,20 +73,20 @@ export class BrowserSynth {
      this.sync(state);
      if([13,14].includes(cmd))this.samples(state);
      // Read-only protocol replies do not cause storage writes.
-     if([3,7,8,9,13,14,18,19,20,21,27,28,30,31,33].includes(cmd))this.scheduleSave();
+     if([3,7,8,9,13,14,18,19,20,21,27,28,30,31,33,38,40,42,69,71].includes(cmd))this.scheduleSave();
    }});
    for(const output of this.virtual.access.outputs.values())output.panic=()=>this.panic();
    const state=this.virtual.state;
    // Start with empty patterns and banks; the silent demo is not a new song.
    for(const t of state.tracks){t.step.forEach(s=>Object.assign(s,{n:0,notes:[0,0,0,0],time:2,flags:0,vel:0,lvl:0,rat:0}));t.dstep?.forEach(s=>{s.on=0;s.lvl.fill(0);s.rat.fill(0);});}
-   state.slots.fill(null);state.bank.fill(null);state.rec=0;
+   state.slots.fill(null);state.bank.fill(null);state.fm6bank.fill(null);state.rec=0;
    this.onStartup?.('Restoring saved session');
    try{const saved=await startupDeadline(session.load(),'Restoring the saved session',8000);if(saved)Object.assign(state,saved);}catch(error){this.virtual=null;this.onStorage?.(false);throw error;}
    this.sync(state);this.samples(state);return this.virtual;
  }
  sync(state) {
     if(this.firmwareActive||this.firmwareChanging)return;
-   const data={type:'state',sel:state.sel,solo:state.solo,g:state.g,tracks:state.tracks.map(t=>({engine:t.engine,p:t.p,step:t.step,dstep:t.dstep}))};
+   const data={type:'state',sel:state.sel,solo:state.solo,g:state.g,fm6bank:state.fm6bank,tracks:state.tracks.map(t=>({engine:t.engine,p:t.p,step:t.step,dstep:t.dstep,micro:t.micro,locks:t.locks,fill:t.fill,fm6:t.fm6}))};
    const signature=JSON.stringify(data);if(signature===this.signature)return;
    this.signature=signature;this.node.port.postMessage(data);
  }

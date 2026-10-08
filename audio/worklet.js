@@ -16,10 +16,15 @@ class SloopProcessor extends AudioWorkletProcessor {
       } else if(data.type==='panel')this.events.push(data.event);
       else if(data.type==='releasePanel'){this.events=this.events.filter(e=>!Array.isArray(e));this.engine.fw_release();}
       else if(data.type==='state'&&!this.firmware) {
+        (data.fm6bank||[]).forEach((p,k)=>{if(JSON.stringify(p)!==JSON.stringify(this.state.fm6bank?.[k])){if(p)new Uint8Array(this.engine.memory.buffer,this.engine.fw_buffer(8,k),128).set(p);this.engine.fw_commit(8,k,!!p);}});
         data.tracks.forEach((t,k)=>{
           const old=this.state.tracks[k];this.engine.synth_target(k);
           if(old?.engine!==t.engine)this.engine.synth_engine(t.engine);
           t.p.forEach((v,i)=>{if(old?.engine!==t.engine||old?.p[i]!==v)this.engine.synth_param(i,v);});
+          if(k<3&&t.fm6&&(old?.engine!==t.engine||JSON.stringify(old?.fm6)!==JSON.stringify(t.fm6))){new Uint8Array(this.engine.memory.buffer,this.engine.fw_buffer(7,k),128).set(t.fm6);this.engine.fw_commit(7,k,1);}
+          (t.micro||[]).forEach((v,i)=>this.engine.synth_extras(k,0,i,v,0));
+          (t.fill||[]).forEach((v,i)=>this.engine.synth_extras(k,1,i,v,0));
+          for(let i=0;i<24;i++){const l=t.locks?.[i];this.engine.synth_extras(k,2,i,l?l.step:255,l?((l.param<<16)|(l.value&65535)):0);}
           if(k<3)t.step.forEach((s,i)=>{
             if(JSON.stringify(s)!==JSON.stringify(old?.step?.[i]))this.engine.synth_step(k,i,s.n,s.time,s.flags,s.vel,s.lvl||0,s.rat||0,...s.notes);
           });
@@ -34,7 +39,7 @@ class SloopProcessor extends AudioWorkletProcessor {
       else if(data.type==='transport')this.engine.synth_transport(data.op);
       else if(data.type==='panic'){this.events=this.events.filter(e=>!Array.isArray(e));this.engine.fw_release();this.engine.synth_panic();}
       else if(data.type==='sample') {
-        if(data.slot>=0&&data.slot<3&&data.bytes.length===0x14000) {
+        if(data.slot>=0&&data.slot<4&&data.bytes.length===0x14000) {
           new Uint8Array(this.engine.memory.buffer,this.engine.synth_sample_buffer(data.slot),0x14000).set(data.bytes);
           this.engine.synth_sample_apply(data.slot);
         }

@@ -941,3 +941,8 @@ footer a { text-underline-offset:3px; }
 .mode-tip-choice + .mode-tip-choice {margin-top:13px;padding-top:13px;border-top:1px solid color-mix(in srgb,var(--ink) 18%,transparent)}
 .mode-tip-choice strong {display:block;margin-bottom:4px;font-weight:800;font-size:14px}
 .mode-tip-choice span {display:block;font-weight:400;line-height:1.5}
+/* Keep the Studio's compact horizontal navigation when importing the 2.4
+   editor (whose upstream presentation uses a vertical sidebar). */
+.editor-page #tabs { flex-direction:row; flex-wrap:wrap; gap:4px; }
+.editor-page #tabs button { flex:0 0 auto; border-left:0; text-align:center; }
+.editor-page #connect { width:auto; }
